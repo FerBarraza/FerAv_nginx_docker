@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  nginx-proxy_fenic:
+    image: jwilder/nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs:ro
+      - vhostd:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+
+  letsencrypt_fenic:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs:rw
+      - vhostd:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  www:
+    image: nginx
+    restart: always
+    expose:
+      - "80"
+    volumes:
+      - /root/pagina_test/pagina_FENIC_slider/www:/usr/share/nginx/html:ro
+    environment:
+      - VIRTUAL_HOST=fenicproducciones.sytes.net,www.fenicproducciones.sytes.net
+      - LETSENCRYPT_HOST=fenicproducciones.sytes.net,www.fenicproducciones.sytes.net
+#      - LETSENCRYPT_EMAIL=fernandobarraza99@gmail.com
+
+  www2:
+    image: nginx
+    restart: always
+    expose:
+      - "80"
+    volumes:
+      - /root/pagina_test/pagina_FENIC_slider/www2:/usr/share/nginx/html:ro
+    environment:
+      - VIRTUAL_HOST=ferbarraza-av.ddns.net,www.ferbarraza-av.ddns.net
+      - LETSENCRYPT_HOST=ferbarraza-av.ddns.net,www.ferbarraza-av.ddns.net
+#      - LETSENCRYPT_EMAIL=fernandobarraza99@gmail.com
+
+
+
+
+
+volumes: 
+  certs:
+  html:
+  vhostd:
